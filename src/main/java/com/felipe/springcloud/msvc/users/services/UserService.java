@@ -47,10 +47,7 @@ public class UserService implements IUserService {
         // Encrypt the password before saving
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        List<Role> roles = new ArrayList<>();
-        Optional<Role> role = roleRepository.findByName("ROLE_USER");
-        role.ifPresent(x -> roles.add(x));
-        user.setRoles(roles);
+        user.setRoles(getDefaultRoles());
         return userRepository.save(user);
     }
 
@@ -60,7 +57,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User update(Long id, User user) {
+    public Optional<User> update(Long id, User user) {
         Optional<User> userOptional = this.findById(id);
 
         return userOptional.map(userDb -> {
@@ -73,12 +70,16 @@ public class UserService implements IUserService {
             userDb.setEnabled(user.isEnabled());
 
             // set roles
-            List<Role> roles = new ArrayList<>();
-            Optional<Role> role = roleRepository.findByName("ROLE_USER");
-            role.ifPresent(x -> roles.add(x));
-            userDb.setRoles(roles);
+            userDb.setRoles(this.getDefaultRoles());
 
-            return this.save(userDb);
-        }).orElseGet(() -> null);
+            return Optional.of(this.save(userDb));
+        }).orElseGet(() -> Optional.empty());
+    }
+
+    private List<Role> getDefaultRoles() {
+        List<Role> roles = new ArrayList<>();
+        Optional<Role> role = roleRepository.findByName("ROLE_USER");
+        role.ifPresent(roles::add);
+        return roles;
     }
 }

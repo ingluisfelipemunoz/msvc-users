@@ -46,7 +46,7 @@ public class UserService implements IUserService {
     public User save(User user) {
         // Encrypt the password before saving
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-
+        user.setEnabled(true);
         user.setRoles(getDefaultRoles(user));
         return userRepository.save(user);
     }
@@ -57,6 +57,7 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Transactional
     public Optional<User> update(Long id, User user) {
         Optional<User> userOptional = this.findById(id);
 
@@ -64,10 +65,11 @@ public class UserService implements IUserService {
             // set fields
             userDb.setEmail(user.getEmail());
             userDb.setUsername(user.getUsername());
-            if (user.isEnabled() != null) {
+            if (user.isEnabled() == null) {
+                userDb.setEnabled(true);
+            } else {
                 userDb.setEnabled(user.isEnabled());
             }
-            userDb.setEnabled(user.isEnabled());
 
             // set roles
             userDb.setRoles(this.getDefaultRoles(user));

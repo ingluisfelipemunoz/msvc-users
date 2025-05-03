@@ -47,7 +47,7 @@ public class UserService implements IUserService {
         // Encrypt the password before saving
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        user.setRoles(getDefaultRoles());
+        user.setRoles(getDefaultRoles(user));
         return userRepository.save(user);
     }
 
@@ -70,16 +70,21 @@ public class UserService implements IUserService {
             userDb.setEnabled(user.isEnabled());
 
             // set roles
-            userDb.setRoles(this.getDefaultRoles());
+            userDb.setRoles(this.getDefaultRoles(user));
 
             return Optional.of(this.save(userDb));
         }).orElseGet(() -> Optional.empty());
     }
 
-    private List<Role> getDefaultRoles() {
+    private List<Role> getDefaultRoles(User user) {
         List<Role> roles = new ArrayList<>();
         Optional<Role> role = roleRepository.findByName("ROLE_USER");
         role.ifPresent(roles::add);
+
+        if (user.isAdmin()) {
+            Optional<Role> adminRoleOptional = roleRepository.findByName("ROLE_ADMIN");
+            adminRoleOptional.ifPresent(roles::add);
+        }
         return roles;
     }
 }

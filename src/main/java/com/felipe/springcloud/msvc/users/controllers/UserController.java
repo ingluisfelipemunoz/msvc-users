@@ -3,6 +3,7 @@ package com.felipe.springcloud.msvc.users.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import com.felipe.springcloud.msvc.users.entities.User;
@@ -15,21 +16,27 @@ public class UserController {
 
     @Autowired
     private IUserService userService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         User savedUser = userService.save(user);
         return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> createUser(@RequestBody User user, @PathVariable Long id) {
+    public ResponseEntity<User> updateUser(@RequestBody User user, @PathVariable Long id) {
 
         Optional<User> userOptional = userService.findById(id);
 
         return userOptional.map(userDb -> {
             userDb.setEmail(user.getEmail());
             userDb.setUsername(user.getUsername());
+            if (user.isEnabled() != null) {
+                userDb.setEnabled(user.isEnabled());
+            }
             userDb.setEnabled(user.isEnabled());
             return ResponseEntity.status(HttpStatus.CREATED).body(userService.save(userDb));
         }).orElseGet(() -> ResponseEntity.notFound().build());

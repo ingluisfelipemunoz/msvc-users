@@ -23,7 +23,7 @@ public class User {
     @NotBlank
     private String password;
 
-    private boolean enabled;
+    private Boolean enabled;
 
     @Email
     @NotBlank
@@ -54,11 +54,11 @@ public class User {
         this.password = password;
     }
 
-    public boolean isEnabled() {
+    public Boolean isEnabled() {
         return enabled;
     }
 
-    public void setEnabled(boolean enabled) {
+    public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
     }
 

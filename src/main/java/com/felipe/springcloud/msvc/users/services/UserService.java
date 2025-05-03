@@ -1,6 +1,7 @@
 package com.felipe.springcloud.msvc.users.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,5 +57,28 @@ public class UserService implements IUserService {
     @Transactional
     public void delete(Long id) {
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public User update(Long id, User user) {
+        Optional<User> userOptional = this.findById(id);
+
+        return userOptional.map(userDb -> {
+            // set fields
+            userDb.setEmail(user.getEmail());
+            userDb.setUsername(user.getUsername());
+            if (user.isEnabled() != null) {
+                userDb.setEnabled(user.isEnabled());
+            }
+            userDb.setEnabled(user.isEnabled());
+
+            // set roles
+            List<Role> roles = new ArrayList<>();
+            Optional<Role> role = roleRepository.findByName("ROLE_USER");
+            role.ifPresent(x -> roles.add(x));
+            userDb.setRoles(roles);
+
+            return this.save(userDb);
+        }).orElseGet(() -> null);
     }
 }

@@ -24,18 +24,12 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@RequestBody User user, @PathVariable Long id) {
-
-        Optional<User> userOptional = userService.findById(id);
-
-        return userOptional.map(userDb -> {
-            userDb.setEmail(user.getEmail());
-            userDb.setUsername(user.getUsername());
-            if (user.isEnabled() != null) {
-                userDb.setEnabled(user.isEnabled());
-            }
-            userDb.setEnabled(user.isEnabled());
-            return ResponseEntity.status(HttpStatus.CREATED).body(userService.save(userDb));
-        }).orElseGet(() -> ResponseEntity.notFound().build());
+        User updatedUser = userService.update(id, user);
+        if (updatedUser != null) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(updatedUser);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/{id}")

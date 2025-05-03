@@ -74,7 +74,7 @@ public class UserService implements IUserService {
             // set roles
             userDb.setRoles(this.getDefaultRoles(user));
 
-            return Optional.of(this.save(userDb));
+            return Optional.of(userRepository.save(userDb));
         }).orElseGet(() -> Optional.empty());
     }
 

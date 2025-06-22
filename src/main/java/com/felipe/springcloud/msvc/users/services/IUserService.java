@@ -17,4 +17,6 @@ public interface IUserService {
     Optional<User> update(Long id, User user);
 
     void delete(Long id);
+
+    Optional<User> resetPassword(String username, String newPassword);
 }

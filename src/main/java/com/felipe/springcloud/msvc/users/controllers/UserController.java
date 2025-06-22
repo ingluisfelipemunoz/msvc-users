@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import com.felipe.springcloud.msvc.users.entities.User;
 import com.felipe.springcloud.msvc.users.services.IUserService;
 
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -51,5 +52,14 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> body) {
+        String username = body.get("username");
+        String newPassword = body.get("newPassword");
+        return userService.resetPassword(username, newPassword)
+                .map(user -> ResponseEntity.ok().build())
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
